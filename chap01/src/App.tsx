@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import { SearchableList } from './Search';
+import { SearchableList as HookList } from "./CustomSearch";
 
 const App: React.FC = () => {
   const [counter, setCounter] = useState<number>(0)
@@ -9,9 +10,9 @@ const App: React.FC = () => {
   return (
     <main className="App">
       <article>
-        <button onClick={ () => setCounter(state => state + 1) }>+</button>
+        <button onClick={ () => setCounter(counter => counter + 1) }>+</button>
         <p>{ counter }</p>
-        <button onClick={ () => setCounter(state => state - 1) }>-</button>
+        <button onClick={ () => setCounter(counter => counter - 1) }>-</button>
       </article>
       <article>
         <form action="#">
@@ -20,7 +21,10 @@ const App: React.FC = () => {
         </form>
       </article>
       <article>
-        <SearchableList list={ [{ id: '1', name: 'one' }] } />
+        <SearchableList list={ [{ id: '1', name: 'one' }, { id: '2', name: 'two' }, { id: '3', name: 'three' }] } />
+      </article>
+      <article>
+        <HookList list={ [{ id: '1', name: 'one' }, { id: '2', name: 'two' }, { id: '3', name: 'three' }] } />
       </article>
     </main>
   )
