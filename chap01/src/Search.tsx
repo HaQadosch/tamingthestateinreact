@@ -1,23 +1,40 @@
-import React, { useState, ChangeEvent } from "react"
+import React, { useState, ChangeEvent, ChangeEventHandler } from "react"
+
+interface IItem {
+  id: string
+  name: string
+}
 
 interface IList {
-  list: {
-    id: string
-    name: string
-  }[]
+  list: IItem[]
+  query?: string
 }
 
 export const SearchableList: React.FC<IList> = ({ list }) => {
+  const [query, setQuery] = useState<string>('')
+
   return (
     <div>
-      <Search>Search List:</Search>
-      <List list={ list } />
+      <Search onChange={ onChange } query={ query }>Search List:</Search>
+      <ArchiveList list={ list?.filter(byQuery(query)) ?? [] } query={ query } />
     </div>
   )
+
+  function byQuery (query: string) {
+    return (item: IItem) => query === '' || item.name.toLowerCase().includes(query.toLowerCase())
+  }
+
+  function onChange ({ target: { value } }: ChangeEvent<HTMLInputElement>): void {
+    setQuery(value)
+  }
 }
 
-export const Search: React.FC = ({ children }) => {
-  const [query, setQuery] = useState<string>('')
+interface ISearch {
+  query: string
+  onChange: ChangeEventHandler
+}
+
+export const Search: React.FC<ISearch> = ({ children, onChange: handleChange, query }) => {
 
   return (
     <div>
@@ -25,15 +42,30 @@ export const Search: React.FC = ({ children }) => {
     </div>
   )
 
-  function handleChange ({ target: { value } }: ChangeEvent<HTMLInputElement>): void {
-    setQuery(value)
-  }
 }
 
-export const List: React.FC<IList> = ({ list }) => {
+export const ArchiveList: React.FC<IList> = ({ list }) => {
+  const [archivedItems, setArchivedItems] = useState<IItem[]>([])
+
   return (
     <ul>
-      { list.map(({ id, name }) => <li key={ id }>{ name }</li>) }
+      {
+        list.filter(byArchived(archivedItems)).map(({ id, name }) =>
+          <li key={ id }>
+            <span>{ name }</span><span><button onClick={ _ => handleArchive(id) }>Archive</button></span>
+          </li>)
+      }
     </ul>
   )
+
+  function byArchived (archivedItems: IItem[]) {
+    return (item: IItem) => archivedItems.length === 0 || !archivedItems.includes(item)
+  }
+
+  function handleArchive (archId: string) {
+    const found = list.find(({ id }) => id === archId)
+    if (found) {
+      setArchivedItems(archived => archived.concat([found]))
+    }
+  }
 }
